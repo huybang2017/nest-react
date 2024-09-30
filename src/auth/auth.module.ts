@@ -4,24 +4,24 @@ import { UsersModule } from 'src/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthService } from './auth.service';
 import { PassportModule } from '@nestjs/passport';
-import { LocalStrategy } from './local.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtStragety, LocalStrategy, RefreshTokenStrategy } from './stragety';
 
 @Module({
   imports: [
     UsersModule,
     PassportModule,
     JwtModule.registerAsync({
-      imports: [ConfigModule], // Đảm bảo ConfigModule có mặt ở đây để sử dụng biến môi trường
-      inject: [ConfigService], // Inject ConfigService để truy cập vào các biến môi trường
+      imports: [ConfigModule],
+      inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'), // Lấy JWT_SECRET từ .env
+        secret: configService.get<string>('JWT_SECRET'),
         signOptions: { expiresIn: '60s' },
         global: true,
       }),
     }),
   ],
-  providers: [AuthService, LocalStrategy],
+  providers: [AuthService, LocalStrategy, JwtStragety, RefreshTokenStrategy],
   controllers: [AuthController],
   exports: [AuthService],
 })
