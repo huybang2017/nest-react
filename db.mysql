@@ -1,33 +1,62 @@
 CREATE DATABASE IF NOT EXISTS nest_crud;
 USE nest_crud;
-CREATE TABLE IF NOT EXISTS products (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    description TEXT,
-    price DECIMAL(10, 2) NOT NULL,
-    stock_quantity INT NOT NULL DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+
+-- Drop and create the account table
+DROP TABLE IF EXISTS account;
+CREATE TABLE IF NOT EXISTS account (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+	email VARCHAR(255) NOT NULL UNIQUE,
+	password VARCHAR(255) NOT NULL,
+	role ENUM('admin', 'user') NOT NULL DEFAULT 'user',
+	active BOOLEAN NOT NULL DEFAULT TRUE,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(255) NOT NULL UNIQUE,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
-INSERT INTO users (username, email, password) 
+-- Insert values into the account table
+INSERT INTO account (email, password, active, role) 
 VALUES 
-('user1', 'user1@example.com', 'hashed_password1'),
-('user2', 'user2@example.com', 'hashed_password2'),
-('user3', 'user3@example.com', 'hashed_password3'),
-('user4', 'user4@example.com', 'hashed_password4'),
-('user5', 'user5@example.com', 'hashed_password5');
+('admin1@example.com', 'hashed_password1', TRUE, 'admin'),
+('user2@example.com', 'hashed_password2', TRUE, 'user'),
+('user3@example.com', 'hashed_password3', FALSE, 'user'),
+('user4@example.com', 'hashed_password4', TRUE, 'user'),
+('user5@example.com', 'hashed_password5', FALSE, 'user');
 
+-- Drop and create the users table with a foreign key to account
+DROP TABLE IF EXISTS users;
+CREATE TABLE IF NOT EXISTS users (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+	username VARCHAR(255) NOT NULL,
+	email VARCHAR(255) NOT NULL UNIQUE,
+	phoneNumber VARCHAR(25) NOT NULL,
+	account_id INT,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	CONSTRAINT fk_account FOREIGN KEY (account_id) REFERENCES account(id) ON DELETE CASCADE
+);
 
+-- Insert values into the users table
+INSERT INTO users (username, email, phoneNumber, account_id) 
+VALUES 
+('admin1', 'admin1@example.com', '1234567890', 1),
+('user2', 'user2@example.com', '0987654321', 2),
+('user3', 'user3@example.com', '1122334455', 3),
+('user4', 'user4@example.com', '2233445566', 4),
+('user5', 'user5@example.com', '3344556677', 5);
+
+-- Drop and create the products table with a foreign key to users
+DROP TABLE IF EXISTS products;
+CREATE TABLE IF NOT EXISTS products (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+	name VARCHAR(255) NOT NULL,
+	description TEXT,
+	price DECIMAL(10, 2) NOT NULL,
+	stock_quantity INT NOT NULL DEFAULT 0,
+	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Insert values into the products table
 INSERT INTO products (name, description, price, stock_quantity) 
 VALUES 
 ('Product 1', 'Description for product 1', 19.99, 100),

@@ -1,31 +1,32 @@
-import { Account } from 'src/account/account.entity';
+import { ROLE } from 'src/common/utils/permission';
 import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  ManyToOne,
-  JoinColumn,
 } from 'typeorm';
 
-@Entity('users')
-export class User {
+@Entity('account')
+export class Account {
   @PrimaryGeneratedColumn()
   id: number;
-
-  @Column()
-  username: string;
 
   @Column({ unique: true })
   email: string;
 
   @Column()
-  phoneNumber: string;
+  password: string;
 
-  @ManyToOne(() => Account)
-  @JoinColumn({ name: 'account_id' })
-  account: Account;
+  @Column({
+    type: 'enum',
+    enum: ROLE,
+    default: ROLE.USER,
+  })
+  role: ROLE;
+
+  @Column({ default: true })
+  active: boolean;
 
   @CreateDateColumn()
   created_at: Date;
